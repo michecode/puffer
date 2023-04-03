@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { sketchRgbSmoke } from '$lib/rgb';
-	import P5, { type Sketch } from 'p5-svelte';
+	import P5 from 'p5-svelte';
 
-	const rgbColorSpace = sketchRgbSmoke();
+	const rgbColorSpace = sketchRgbSmoke('xs');
 </script>
 
 <P5 sketch={rgbColorSpace} />

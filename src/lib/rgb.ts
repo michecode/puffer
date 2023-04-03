@@ -1,91 +1,88 @@
 import type p5 from 'p5';
 import type { Sketch } from 'p5-svelte';
 import { colorspaceIdToCoordinates, search3D } from './colorspace';
+import {
+	canvasIdToCoordinates,
+	updateCanvasTrackers,
+	getNextPixel,
+	getColorIdToSearchFrom
+} from './helpers';
 
-export const sketchRgbSmoke = () => {
+type CanvasSize = 'nano' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+const SIZE_MAP = {
+	nano: {
+		rgb: 4,
+		canvas: 8
+	},
+	xs: {
+		rgb: 16,
+		canvas: 64
+	},
+	sm: {
+		rgb: 25,
+		canvas: 125
+	},
+	md: {
+		rgb: 64,
+		canvas: 512
+	},
+	lg: {
+		rgb: 100,
+		canvas: 1000
+	},
+	xl: {
+		rgb: 256,
+		canvas: 4096
+	}
+};
+
+export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 	const sketch: Sketch = (p5: p5) => {
-		const size = 4096;
-		const rgbSize = 256;
+		const RGB_SIZE = SIZE_MAP[canvasSize].rgb;
+		const CANVAS_WIDTH = SIZE_MAP[canvasSize].canvas;
 		let painting: p5.Image;
 
-		const canvasPossum: Set<number> = new Set();
-		const canvasHerstory: Set<number> = new Set();
-		const colorPossum: Set<number> = new Set();
-		const colorHerstory: Set<number> = new Set();
+		const canvasOptions: Set<number> = new Set();
+		const canvasHistory: Map<number, number> = new Map(); // key = canvas id || value = color id
+		const colorHistory: Set<number> = new Set();
 
 		const paintPixel = (id: number) => {
-			const [x, y] = canvasIdToCoordinates(id, rgbSize);
-			const colorId = search3D(id, colorPossum);
-			const [cX, cY, cZ] = colorspaceIdToCoordinates(colorId, rgbSize);
+			const baseColorId = getColorIdToSearchFrom(id, CANVAS_WIDTH, canvasHistory);
+			const colorId = search3D(baseColorId, colorHistory, RGB_SIZE);
+			const [cX, cY, cZ] = colorspaceIdToCoordinates(colorId, RGB_SIZE);
+			const [x, y] = canvasIdToCoordinates(id, CANVAS_WIDTH);
 
 			painting.set(x, y, p5.color(cX, cY, cZ));
 
-			updateTrackers(id, canvasPossum, canvasHerstory, rgbSize);
-			updateTrackers(colorId, colorPossum, colorHerstory, rgbSize);
-		};
-
-		const getNextPixel = () => {
-			let items = Array.from(canvasPossum);
-			return items[Math.floor(Math.random() * items.length)];
+			updateCanvasTrackers(id, colorId, canvasOptions, canvasHistory, CANVAS_WIDTH);
 		};
 
 		p5.setup = () => {
-			p5.createCanvas(size, size);
-			painting = p5.createImage(size, size);
+			p5.createCanvas(CANVAS_WIDTH, CANVAS_WIDTH);
+			painting = p5.createImage(CANVAS_WIDTH, CANVAS_WIDTH);
 			painting.loadPixels();
 
-			// get seeds
-			const canvasSeed = Math.floor(p5.random(0, size ^ 2));
-			const colorSeed = Math.floor(p5.random(0, size ^ 2));
+			// get seeds. random number between 0 and RGB's color possibilities
+			const canvasSeed = Math.floor(p5.random(0, Math.pow(RGB_SIZE, 3)));
+			const colorSeed = Math.floor(p5.random(0, Math.pow(RGB_SIZE, 3)));
 
 			// paint first pixel
-			const [x, y] = canvasIdToCoordinates(canvasSeed, rgbSize);
-			const [cX, cY, cZ] = colorspaceIdToCoordinates(colorSeed, rgbSize);
+			const [x, y] = canvasIdToCoordinates(canvasSeed, CANVAS_WIDTH);
+			const [cX, cY, cZ] = colorspaceIdToCoordinates(colorSeed, RGB_SIZE);
 			painting.set(x, y, p5.color(cX, cY, cZ));
 
 			// prep trackers
-			updateTrackers(canvasSeed, canvasPossum, canvasHerstory, rgbSize);
-			updateTrackers(colorSeed, colorPossum, colorHerstory, rgbSize);
+			updateCanvasTrackers(canvasSeed, colorSeed, canvasOptions, canvasHistory, CANVAS_WIDTH);
 			painting.updatePixels();
 			p5.image(painting, 0, 0);
 		};
 
 		p5.draw = () => {
-			paintPixel(getNextPixel());
+			paintPixel(getNextPixel(canvasOptions));
 			painting.updatePixels();
 			p5.image(painting, 0, 0);
 		};
-	};
-
-	const updateTrackers = (id: number, possum: Set<number>, herstory: Set<number>, root: number) => {
-		const xDif = root ^ 0;
-		const zDif = root ^ 1;
-		const yDif = root ^ 2;
-
-		possum.delete(id);
-		if (!herstory.has(id + xDif)) {
-			possum.add(id + xDif); // right
-		}
-		if (!herstory.has(id - xDif)) {
-			possum.add(id - xDif); // left
-		}
-		if (!herstory.has(id + zDif)) {
-			possum.add(id + zDif); // forward
-		}
-		if (!herstory.has(id - zDif)) {
-			possum.add(id - zDif); // backward
-		}
-		if (!herstory.has(id + yDif)) {
-			possum.add(id + yDif); // down
-		}
-		if (!herstory.has(id - yDif)) {
-			possum.add(id - yDif); // up
-		}
-		herstory.add(id);
-	};
-
-	const canvasIdToCoordinates = (id: number, length: number) => {
-		return [id % length, Math.floor(id / length)];
 	};
 
 	return sketch;
