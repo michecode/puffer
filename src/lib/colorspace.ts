@@ -49,7 +49,7 @@ export const search3D = (id: number, usedColors: Set<number>, rgbCubeRoot: numbe
 		checkPossible(-zDif); // backward
 		checkPossible(yDif); // down
 		checkPossible(-yDif); // up
-		console.log(possibleColors);
+		console.log(possibleColors, 'colors');
 		return found;
 	};
 

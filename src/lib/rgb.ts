@@ -37,6 +37,9 @@ const SIZE_MAP = {
 	}
 };
 
+const DISPLAY_WIDTH = 512;
+const SCALE = 8;
+
 export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 	const sketch: Sketch = (p5: p5) => {
 		const RGB_SIZE = SIZE_MAP[canvasSize].rgb;
@@ -59,7 +62,9 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 		};
 
 		p5.setup = () => {
-			p5.createCanvas(CANVAS_WIDTH, CANVAS_WIDTH);
+			p5.createCanvas(DISPLAY_WIDTH, DISPLAY_WIDTH);
+			// p5.pixelDensity(1);
+			p5.noSmooth();
 			painting = p5.createImage(CANVAS_WIDTH, CANVAS_WIDTH);
 			painting.loadPixels();
 
@@ -81,6 +86,9 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 		p5.draw = () => {
 			paintPixel(getNextPixel(canvasOptions));
 			painting.updatePixels();
+			p5.scale(SCALE);
+			//   let x = (CANVAS_WIDTH - painting.width * SCALE) / 2;
+			// let y = (CANVAS_WIDTH - painting.height * SCALE) / 2;
 			p5.image(painting, 0, 0);
 		};
 	};
