@@ -12,30 +12,8 @@ export const search3D = (
 	colorOptions: Set<number>,
 	rgbCubeRoot: number
 ) => {
-	/*
-  recursive function to look for possible colors.
-  if possibleColors is still empty after checking the starting ID. it will check
-  spawn looper on the 6 surrounding points. (assuming none of them have been usedColors yet)
-  */
-	// const looper = (id: number) => {
-	// 	const spawn = (delta: number) => {
-	// 		if (!usedColors.has(id + delta)) looper(id + delta);
-	// 	};
-
-	// 	// if you found something you can return.
-	// 	if (searchSurrounding3D(id)) return;
-	// 	// if no color was found then spawn lookers.
-	// 	else {
-	// 		spawn(xDif); // left
-	// 		spawn(-xDif); // right
-	// 		spawn(zDif); // foward
-	// 		spawn(-zDif); // backward
-	// 		spawn(yDif); // down
-	// 		spawn(-yDif); // up
-	// 	}
-	// };
 	const getArrayOfClosestColorIDs = () => {
-		let closestColorOptions = [];
+		let closestColorOptions: number[] = [];
 		const [xOrigin, yOrigin, zOrigin] = colorspaceIdToCoordinates(id);
 		let shortest = 443; // distance between (0,0,0) and (255,255,255) + 1
 		colorOptions.forEach((option) => {
@@ -52,48 +30,21 @@ export const search3D = (
 				closestColorOptions.push(option);
 			}
 		});
-	};
-
-	const searchSurrounding3D = (id: number) => {
-		const checkPossible = (delta: number) => {
-			if (!usedColors.has(id + delta)) {
-				found = true;
-				possibleColors.add(id + delta);
-			}
-		};
-
-		if (id < 0 || id > upBound - 1) {
-			return false;
-		}
-
-		let found = false;
-		checkPossible(xDif); // right
-		checkPossible(-xDif); // left
-		checkPossible(zDif); // forward
-		checkPossible(-zDif); // backward
-		checkPossible(yDif); // down
-		checkPossible(-yDif); // up
-		console.log(possibleColors, 'colors');
-		return found;
+		return closestColorOptions;
 	};
 
 	const upBound = Math.pow(rgbCubeRoot, 3);
-	const xDif = Math.pow(rgbCubeRoot, 0);
-	const zDif = Math.pow(rgbCubeRoot, 1);
-	const yDif = Math.pow(rgbCubeRoot, 2);
 
 	// if there are no possibilities (ran out of colors in color space) then re-seed by returning a random id.
-	if (usedColors.size === Math.pow(rgbCubeRoot, 3)) {
+	if (usedColors.size === upBound) {
 		usedColors = new Set();
 		return Math.floor(Math.random() * upBound);
 	}
 
-	const possibleColors: Set<number> = new Set();
-	// looper(id);
 	// randomly pick an id from possibleColors
 	// we'll update herstory and possum in main alg.
-	let items = Array.from(possibleColors);
-	return items[Math.floor(Math.random() * items.length)];
+	let closestColors = getArrayOfClosestColorIDs();
+	return closestColors[Math.floor(Math.random() * closestColors.length)];
 };
 
 export const colorspaceIdToCoordinates = (id: number, rgbCubeRoot = 256) => {

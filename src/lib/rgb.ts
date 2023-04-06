@@ -54,7 +54,7 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 
 		const paintPixel = (id: number) => {
 			const baseColorId = getColorIdToSearchFrom(id, CANVAS_WIDTH, canvasHistory);
-			const colorId = search3D(baseColorId, colorHistory, RGB_SIZE);
+			const colorId = search3D(baseColorId, colorHistory, colorOptions, RGB_SIZE);
 			const [cX, cY, cZ] = colorspaceIdToCoordinates(colorId, RGB_SIZE);
 			const [x, y] = canvasIdToCoordinates(id, CANVAS_WIDTH);
 
