@@ -5,7 +5,8 @@ import {
 	canvasIdToCoordinates,
 	updateCanvasTrackers,
 	getNextPixel,
-	getColorIdToSearchFrom
+	getColorIdToSearchFrom,
+	update3DColorspaceTracker
 } from './helpers';
 
 type CanvasSize = 'nano' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -49,6 +50,7 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 		const canvasOptions: Set<number> = new Set();
 		const canvasHistory: Map<number, number> = new Map(); // key = canvas id || value = color id
 		const colorHistory: Set<number> = new Set();
+		const colorOptions: Set<number> = new Set();
 
 		const paintPixel = (id: number) => {
 			const baseColorId = getColorIdToSearchFrom(id, CANVAS_WIDTH, canvasHistory);
@@ -58,6 +60,7 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 
 			painting.set(x, y, p5.color(cX, cY, cZ));
 
+			update3DColorspaceTracker(colorId, colorOptions, colorHistory, RGB_SIZE);
 			updateCanvasTrackers(id, colorId, canvasOptions, canvasHistory, CANVAS_WIDTH);
 		};
 
@@ -78,6 +81,7 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 			painting.set(x, y, p5.color(cX, cY, cZ));
 
 			// prep trackers
+			update3DColorspaceTracker(colorSeed, colorOptions, colorHistory, RGB_SIZE);
 			updateCanvasTrackers(canvasSeed, colorSeed, canvasOptions, canvasHistory, CANVAS_WIDTH);
 			painting.updatePixels();
 			p5.image(painting, 0, 0);
@@ -87,8 +91,6 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 			paintPixel(getNextPixel(canvasOptions));
 			painting.updatePixels();
 			p5.scale(SCALE);
-			//   let x = (CANVAS_WIDTH - painting.width * SCALE) / 2;
-			// let y = (CANVAS_WIDTH - painting.height * SCALE) / 2;
 			p5.image(painting, 0, 0);
 		};
 	};

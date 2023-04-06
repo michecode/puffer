@@ -6,8 +6,9 @@ export const updateCanvasTrackers = (
 	canvasWidth: number
 ) => {
 	const addPossible = (delta: number) => {
-		if (!history.has(id + delta)) {
-			options.add(id + delta);
+		const newOption = id + delta;
+		if (!history.has(newOption) && newOption < Math.pow(canvasWidth, 2)) {
+			options.add(newOption);
 		}
 	};
 
@@ -17,6 +18,34 @@ export const updateCanvasTrackers = (
 	addPossible(-canvasWidth); // up
 	addPossible(1); // right
 	addPossible(-1); // left
+};
+
+export const update3DColorspaceTracker = (
+	id: number,
+	options: Set<number>,
+	history: Set<number>,
+	rgbCubeRoot: number
+) => {
+	const addPossible = (delta: number) => {
+		const newOption = id + delta;
+		if (!history.has(newOption) && newOption < upBound) {
+			options.add(newOption);
+		}
+	};
+
+	const upBound = Math.pow(rgbCubeRoot, 3);
+	const xDif = Math.pow(rgbCubeRoot, 0);
+	const zDif = Math.pow(rgbCubeRoot, 1);
+	const yDif = Math.pow(rgbCubeRoot, 2);
+
+	options.delete(id);
+	history.add(id);
+	addPossible(xDif); // right
+	addPossible(-xDif); // left
+	addPossible(zDif); // forward
+	addPossible(-zDif); // backward
+	addPossible(yDif); // down
+	addPossible(-yDif); // up
 };
 
 export const canvasIdToCoordinates = (id: number, canvasWidth: number) => {
@@ -48,6 +77,8 @@ export const getSurroundingPixels = (
 	return surrounding;
 };
 
+// checks adjancet CANVAS pixels and randomly picks a color
+// to be the root of the color search
 export const getColorIdToSearchFrom = (
 	id: number,
 	canvasWidth: number,

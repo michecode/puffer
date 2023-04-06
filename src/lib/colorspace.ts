@@ -6,28 +6,52 @@ id = the id of the point in space where you search from
 
 possible optimizations.. xDif = 1, dont access memory. could also make the rest hard coded but idk yet
 */
-export const search3D = (id: number, usedColors: Set<number>, rgbCubeRoot: number) => {
+export const search3D = (
+	id: number,
+	usedColors: Set<number>,
+	colorOptions: Set<number>,
+	rgbCubeRoot: number
+) => {
 	/*
   recursive function to look for possible colors.
   if possibleColors is still empty after checking the starting ID. it will check
   spawn looper on the 6 surrounding points. (assuming none of them have been usedColors yet)
   */
-	const looper = (id: number) => {
-		const spawn = (delta: number) => {
-			if (!usedColors.has(id + delta)) looper(id + delta);
-		};
+	// const looper = (id: number) => {
+	// 	const spawn = (delta: number) => {
+	// 		if (!usedColors.has(id + delta)) looper(id + delta);
+	// 	};
 
-		// if you found something you can return.
-		if (searchSurrounding3D(id)) return;
-		// if no color was found then spawn lookers.
-		else {
-			spawn(xDif); // left
-			spawn(-xDif); // right
-			spawn(zDif); // foward
-			spawn(-zDif); // backward
-			spawn(yDif); // down
-			spawn(-yDif); // up
-		}
+	// 	// if you found something you can return.
+	// 	if (searchSurrounding3D(id)) return;
+	// 	// if no color was found then spawn lookers.
+	// 	else {
+	// 		spawn(xDif); // left
+	// 		spawn(-xDif); // right
+	// 		spawn(zDif); // foward
+	// 		spawn(-zDif); // backward
+	// 		spawn(yDif); // down
+	// 		spawn(-yDif); // up
+	// 	}
+	// };
+	const getArrayOfClosestColorIDs = () => {
+		let closestColorOptions = [];
+		const [xOrigin, yOrigin, zOrigin] = colorspaceIdToCoordinates(id);
+		let shortest = 443; // distance between (0,0,0) and (255,255,255) + 1
+		colorOptions.forEach((option) => {
+			const [xOption, yOption, zOption] = colorspaceIdToCoordinates(option);
+			const distance = Math.sqrt(
+				Math.pow(xOption - xOrigin, 2) +
+					Math.pow(yOption - yOrigin, 2) +
+					Math.pow(zOption - zOrigin, 2)
+			);
+			if (shortest > distance) {
+				closestColorOptions = [option];
+				shortest = distance;
+			} else if (shortest === distance) {
+				closestColorOptions.push(option);
+			}
+		});
 	};
 
 	const searchSurrounding3D = (id: number) => {
@@ -65,7 +89,7 @@ export const search3D = (id: number, usedColors: Set<number>, rgbCubeRoot: numbe
 	}
 
 	const possibleColors: Set<number> = new Set();
-	looper(id);
+	// looper(id);
 	// randomly pick an id from possibleColors
 	// we'll update herstory and possum in main alg.
 	let items = Array.from(possibleColors);
@@ -76,7 +100,7 @@ export const colorspaceIdToCoordinates = (id: number, rgbCubeRoot = 256) => {
 	const LEAP_FACTOR = Math.floor(256 / rgbCubeRoot);
 	const x = id % rgbCubeRoot;
 	const y = Math.floor(id / Math.pow(rgbCubeRoot, 2));
-	const z = Math.floor((id - y * Math.pow(rgbCubeRoot, 2)) / 3);
+	const z = Math.floor((id - 1) / Math.pow(rgbCubeRoot, 2)) % rgbCubeRoot;
 	const coords = [x * LEAP_FACTOR, y * LEAP_FACTOR, z * LEAP_FACTOR];
 	console.log(coords, 'coords');
 	return coords;
