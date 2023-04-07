@@ -17,7 +17,6 @@ export const search3D = (
 		const [xOrigin, yOrigin, zOrigin] = colorspaceIdToCoordinates(id, rgbCubeRoot);
 		let shortest = 443; // distance between (0,0,0) and (255,255,255) + 1
 		colorOptions.forEach((option) => {
-			console.log('option coords', option);
 			const [xOption, yOption, zOption] = colorspaceIdToCoordinates(option, rgbCubeRoot);
 			const distance = Math.sqrt(
 				Math.pow(xOption - xOrigin, 2) +
@@ -58,6 +57,5 @@ export const colorspaceIdToCoordinates = (id: number, rgbCubeRoot: number) => {
 		Math.floor(256 * (y / (rgbCubeRoot - 1))),
 		Math.floor(256 * (z / (rgbCubeRoot - 1)))
 	];
-	console.log(coords, 'coords', `(${x},${y},${z})`, id, 'id');
 	return coords;
 };

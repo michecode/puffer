@@ -1,3 +1,5 @@
+import { colorspaceIdToCoordinates } from './colorspace';
+
 export const updateCanvasTrackers = (
 	id: number,
 	colorId: number,
@@ -91,4 +93,20 @@ export const getColorIdToSearchFrom = (
 	// baseColorId could be undefined from get() but its not possible to
 	// have a pixel not be adjacent to any others.
 	return baseColorId as number;
+};
+
+export const benchmark = () => {
+	const iterations = 32000000;
+	console.time('split');
+	for (let i = 0; i < iterations; i++) {
+		const coords = '1,2,3';
+		coords.split(',');
+	}
+	console.timeEnd('split');
+
+	console.time('convert');
+	for (let i = 0; i < iterations; i++) {
+		colorspaceIdToCoordinates(123, 16);
+	}
+	console.timeEnd('convert');
 };

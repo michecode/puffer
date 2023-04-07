@@ -6,7 +6,8 @@ import {
 	updateCanvasTrackers,
 	getNextPixel,
 	getColorIdToSearchFrom,
-	update3DColorspaceTracker
+	update3DColorspaceTracker,
+	benchmark
 } from './helpers';
 
 type CanvasSize = 'nano' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -38,10 +39,11 @@ const SIZE_MAP = {
 	}
 };
 
-const DISPLAY_WIDTH = 512;
-const SCALE = 8;
-
 export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
+	const DISPLAY_WIDTH = 512;
+	const SCALE = DISPLAY_WIDTH / SIZE_MAP[canvasSize].canvas;
+	// const SCALE = 8;
+
 	const sketch: Sketch = (p5: p5) => {
 		const RGB_SIZE = SIZE_MAP[canvasSize].rgb;
 		const CANVAS_WIDTH = SIZE_MAP[canvasSize].canvas;
@@ -70,6 +72,7 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 		};
 
 		p5.setup = () => {
+			// benchmark();
 			p5.createCanvas(DISPLAY_WIDTH, DISPLAY_WIDTH);
 			// p5.pixelDensity(1);
 			p5.noSmooth();
@@ -90,6 +93,7 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 			updateCanvasTrackers(canvasSeed, colorSeed, canvasOptions, canvasHistory, CANVAS_WIDTH);
 			painting.updatePixels();
 			p5.image(painting, 0, 0);
+			// p5.noLoop();
 		};
 
 		p5.draw = () => {
