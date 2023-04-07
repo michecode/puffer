@@ -7,7 +7,7 @@ export const updateCanvasTrackers = (
 ) => {
 	const addPossible = (delta: number) => {
 		const newOption = id + delta;
-		if (!history.has(newOption) && newOption < Math.pow(canvasWidth, 2)) {
+		if (!history.has(newOption) && newOption < Math.pow(canvasWidth, 2) && newOption >= 0) {
 			options.add(newOption);
 		}
 	};
@@ -28,7 +28,7 @@ export const update3DColorspaceTracker = (
 ) => {
 	const addPossible = (delta: number) => {
 		const newOption = id + delta;
-		if (!history.has(newOption) && newOption < upBound) {
+		if (!history.has(newOption) && newOption < upBound && newOption >= 0) {
 			options.add(newOption);
 		}
 	};

@@ -62,6 +62,11 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 
 			update3DColorspaceTracker(colorId, colorOptions, colorHistory, RGB_SIZE);
 			updateCanvasTrackers(id, colorId, canvasOptions, canvasHistory, CANVAS_WIDTH);
+
+			if (canvasHistory.size === Math.pow(CANVAS_WIDTH, 2)) {
+				console.log('Finished painting!');
+				p5.noLoop();
+			}
 		};
 
 		p5.setup = () => {

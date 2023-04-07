@@ -14,10 +14,11 @@ export const search3D = (
 ) => {
 	const getArrayOfClosestColorIDs = () => {
 		let closestColorOptions: number[] = [];
-		const [xOrigin, yOrigin, zOrigin] = colorspaceIdToCoordinates(id);
+		const [xOrigin, yOrigin, zOrigin] = colorspaceIdToCoordinates(id, rgbCubeRoot);
 		let shortest = 443; // distance between (0,0,0) and (255,255,255) + 1
 		colorOptions.forEach((option) => {
-			const [xOption, yOption, zOption] = colorspaceIdToCoordinates(option);
+			console.log('option coords', option);
+			const [xOption, yOption, zOption] = colorspaceIdToCoordinates(option, rgbCubeRoot);
 			const distance = Math.sqrt(
 				Math.pow(xOption - xOrigin, 2) +
 					Math.pow(yOption - yOrigin, 2) +
@@ -47,12 +48,16 @@ export const search3D = (
 	return closestColors[Math.floor(Math.random() * closestColors.length)];
 };
 
-export const colorspaceIdToCoordinates = (id: number, rgbCubeRoot = 256) => {
-	const LEAP_FACTOR = Math.floor(256 / rgbCubeRoot);
+export const colorspaceIdToCoordinates = (id: number, rgbCubeRoot: number) => {
 	const x = id % rgbCubeRoot;
 	const y = Math.floor(id / Math.pow(rgbCubeRoot, 2));
 	const z = Math.floor((id - 1) / Math.pow(rgbCubeRoot, 2)) % rgbCubeRoot;
-	const coords = [x * LEAP_FACTOR, y * LEAP_FACTOR, z * LEAP_FACTOR];
-	console.log(coords, 'coords');
+
+	const coords = [
+		Math.floor(256 * (x / (rgbCubeRoot - 1))),
+		Math.floor(256 * (y / (rgbCubeRoot - 1))),
+		Math.floor(256 * (z / (rgbCubeRoot - 1)))
+	];
+	console.log(coords, 'coords', `(${x},${y},${z})`, id, 'id');
 	return coords;
 };
