@@ -1,18 +1,18 @@
 import { colorspaceIdToCoordinates } from './colorspace';
 
-export const updateCanvasTrackers = (
+export function updateCanvasTrackers(
 	id: number,
 	colorId: number,
 	options: Set<number>,
 	history: Map<number, number>,
 	canvasWidth: number
-) => {
-	const addPossible = (delta: number) => {
+) {
+	function addPossible(delta: number) {
 		const newOption = id + delta;
 		if (!history.has(newOption) && newOption < Math.pow(canvasWidth, 2) && newOption >= 0) {
 			options.add(newOption);
 		}
-	};
+	}
 
 	options.delete(id);
 	history.set(id, colorId);
@@ -20,20 +20,20 @@ export const updateCanvasTrackers = (
 	addPossible(-canvasWidth); // up
 	addPossible(1); // right
 	addPossible(-1); // left
-};
+}
 
-export const update3DColorspaceTracker = (
+export function update3DColorspaceTracker(
 	id: number,
 	options: Set<number>,
 	history: Set<number>,
 	rgbCubeRoot: number
-) => {
-	const addPossible = (delta: number) => {
+) {
+	function addPossible(delta: number) {
 		const newOption = id + delta;
 		if (!history.has(newOption) && newOption < upBound && newOption >= 0) {
 			options.add(newOption);
 		}
-	};
+	}
 
 	const upBound = Math.pow(rgbCubeRoot, 3);
 	const xDif = Math.pow(rgbCubeRoot, 0);
@@ -48,44 +48,43 @@ export const update3DColorspaceTracker = (
 	addPossible(-zDif); // backward
 	addPossible(yDif); // down
 	addPossible(-yDif); // up
-};
+}
 
-export const canvasIdToCoordinates = (id: number, canvasWidth: number) => {
+export function canvasIdToCoordinates(id: number, canvasWidth: number) {
 	return [id % canvasWidth, Math.floor(id / canvasWidth)];
-};
+}
 
-export const getNextPixel = (canvasOptions: Set<number>) => {
+export function getNextPixel(canvasOptions: Set<number>) {
 	let items = Array.from(canvasOptions);
 	return items[Math.floor(Math.random() * items.length)];
-};
+}
 
-export const getSurroundingPixels = (
+export function getSurroundingPixels(
 	id: number,
 	canvasWidth: number,
 	history: Map<number, number>
-) => {
-	const inBounds = (id: number) => {
-		return id > 0 && id < Math.pow(canvasWidth, 2);
-	};
-
+) {
 	const surrounding = [];
-	if (inBounds(id - canvasWidth) && history.has(id - canvasWidth))
-		surrounding.push(id - canvasWidth); // up
-	if (inBounds(id + canvasWidth) && history.has(id + canvasWidth))
-		surrounding.push(id + canvasWidth); // down
-	if (inBounds(id - 1) && history.has(id - 1)) surrounding.push(id - 1); // left
-	if (inBounds(id + 1) && history.has(id + 1)) surrounding.push(id + 1); // right
+
+	const up = history.get(id - canvasWidth);
+	const down = history.get(id + canvasWidth);
+	const left = history.get(id - 1);
+	const right = history.get(id + 1);
+	up ? surrounding.push(id - canvasWidth) : null;
+	down ? surrounding.push(id + canvasWidth) : null;
+	left ? surrounding.push(id - 1) : null;
+	right ? surrounding.push(id + 1) : null;
 
 	return surrounding;
-};
+}
 
 // checks adjancet CANVAS pixels and randomly picks a color
 // to be the root of the color search
-export const getColorIdToSearchFrom = (
+export function getColorIdToSearchFrom(
 	id: number,
 	canvasWidth: number,
 	history: Map<number, number>
-) => {
+) {
 	const surrounding = getSurroundingPixels(id, canvasWidth, history);
 	const randomId = surrounding[Math.floor(Math.random() * surrounding.length)];
 	const baseColorId = history.get(randomId);
@@ -93,9 +92,9 @@ export const getColorIdToSearchFrom = (
 	// baseColorId could be undefined from get() but its not possible to
 	// have a pixel not be adjacent to any others.
 	return baseColorId as number;
-};
+}
 
-export const benchmark = () => {
+export function benchmark() {
 	const iterations = 32000000;
 	console.time('split');
 	for (let i = 0; i < iterations; i++) {
@@ -109,4 +108,4 @@ export const benchmark = () => {
 		colorspaceIdToCoordinates(123, 16);
 	}
 	console.timeEnd('convert');
-};
+}

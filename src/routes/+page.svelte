@@ -2,7 +2,7 @@
 	import { sketchRgbSmoke } from '$lib/rgb';
 	import P5 from 'p5-svelte';
 
-	const rgbColorSpace = sketchRgbSmoke('sm');
+	const rgbColorSpace = sketchRgbSmoke('md');
 </script>
 
 <P5 sketch={rgbColorSpace} />

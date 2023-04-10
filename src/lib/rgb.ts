@@ -42,19 +42,19 @@ const SIZE_MAP = {
 export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 	const DISPLAY_WIDTH = 512;
 	const SCALE = DISPLAY_WIDTH / SIZE_MAP[canvasSize].canvas;
-	// const SCALE = 8;
 
 	const sketch: Sketch = (p5: p5) => {
 		const RGB_SIZE = SIZE_MAP[canvasSize].rgb;
 		const CANVAS_WIDTH = SIZE_MAP[canvasSize].canvas;
 		let painting: p5.Image;
+		p5.disableFriendlyErrors = true;
 
 		const canvasOptions: Set<number> = new Set();
 		const canvasHistory: Map<number, number> = new Map(); // key = canvas id || value = color id
 		const colorHistory: Set<number> = new Set();
 		const colorOptions: Set<number> = new Set();
 
-		const paintPixel = (id: number) => {
+		function paintPixel(id: number) {
 			const baseColorId = getColorIdToSearchFrom(id, CANVAS_WIDTH, canvasHistory);
 			const colorId = search3D(baseColorId, colorHistory, colorOptions, RGB_SIZE);
 			const [cX, cY, cZ] = colorspaceIdToCoordinates(colorId, RGB_SIZE);
@@ -69,7 +69,7 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 				console.log('Finished painting!');
 				p5.noLoop();
 			}
-		};
+		}
 
 		p5.setup = () => {
 			// benchmark();

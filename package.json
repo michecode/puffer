@@ -33,6 +33,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"mnemonist": "^0.39.5",
 		"p5": "^1.6.0",
 		"p5-svelte": "^3.1.2"
 	}
