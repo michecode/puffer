@@ -3,6 +3,7 @@ import type { Sketch } from 'p5-svelte';
 import { kdTree } from 'kd-tree-javascript';
 
 type RGBCoords = [x: number, y: number, z: number];
+type RGBColorValues = [r: number, g: number, b: number];
 type CanvasSize = 'nano' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 const SIZE_MAP = {
@@ -43,6 +44,7 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 	const canvasOptions: Set<number> = new Set();
 	const canvasHistory: Map<number, RGBCoords> = new Map(); // key = canvas id || value = color id
 	let colorHistory: Set<number> = new Set();
+	let colorOptionsSet: Set<string> = new Set();
 	let colorOptions: kdTree<RGBCoords>;
 
 	const sketch: Sketch = (p5: p5) => {
@@ -69,7 +71,8 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 			const [x, y] = canvasIdToCoordinates(canvasSeed);
 			// colorspace x, colorspace y etc.
 			const [csX, csY, csZ] = colorIdToCoordinates(colorSeed);
-			painting.set(x, y, p5.color(csX, csY, csZ));
+			const [r, g, b] = coordinatesToRGB([csX, csY, csZ]);
+			painting.set(x, y, p5.color(r, g, b));
 
 			// build colorspace kd tree
 			const initialPoints: RGBCoords[] = [];
@@ -84,8 +87,14 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 			pushPoints([csX, csY - 1, csZ]);
 			pushPoints([csX, csY, csZ + 1]);
 			pushPoints([csX, csY, csZ - 1]);
+			// update set
+			colorOptionsSet.add([csX + 1, csY, csZ].toString());
+			colorOptionsSet.add([csX - 1, csY, csZ].toString());
+			colorOptionsSet.add([csX, csY + 1, csZ].toString());
+			colorOptionsSet.add([csX, csY - 1, csZ].toString());
+			colorOptionsSet.add([csX, csY, csZ + 1].toString());
+			colorOptionsSet.add([csX, csY, csZ - 1].toString());
 
-			console.log(initialPoints);
 			function distanceEquation(option: RGBCoords, origin: RGBCoords) {
 				// option 0 = x 1 = y z = 2
 				return (
@@ -98,24 +107,26 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 			updateCanvasTrackers(canvasSeed, [csX, csY, csZ]);
 			painting.updatePixels();
 			p5.image(painting, 0, 0);
-			// p5.noLoop();
 		};
 
 		p5.draw = () => {
-			// get next pixel
 			const next = getNextPixel();
 			const searchPoint = getCoordsToSearchFrom(next);
 			const closestColor = search3D(searchPoint);
 			const [x, y] = canvasIdToCoordinates(next);
 
-			painting.set(x, y, p5.color(...closestColor));
+			const [r, g, b] = coordinatesToRGB(closestColor);
+			console.log(r, g, b);
+			painting.set(x, y, p5.color(r, g, b));
 
 			updateColorTrackers(closestColor);
 			updateCanvasTrackers(next, closestColor);
 
 			if (canvasHistory.size === CANVAS_ID_LIMIT) {
-				alert('Finished');
 				p5.noLoop();
+				setTimeout(() => {
+					alert('Finished');
+				}, 2000);
 			}
 
 			// place pixel
@@ -147,11 +158,18 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 	function updateColorTrackers(coords: RGBCoords) {
 		function addPossible(coords: RGBCoords) {
 			const colorPointId = coordinatesToColorId(coords);
+			console.log(colorHistory);
+			if (colorOptionsSet.has(coords.toString())) {
+				return;
+			}
+
 			if (!colorHistory.has(colorPointId)) {
 				if (coords[0] >= 0 && coords[0] < RGB_SIZE) {
 					if (coords[1] >= 0 && coords[1] < RGB_SIZE) {
 						if (coords[2] >= 0 && coords[2] < RGB_SIZE) {
+							console.log('inserting', coords, colorPointId);
 							colorOptions.insert(coords);
+							colorOptionsSet.add(coords.toString());
 						}
 					}
 				}
@@ -180,12 +198,15 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 		const y = Math.floor((id - 1) / RGB_SIZE) % RGB_SIZE;
 		const z = Math.floor((id - 1) / Math.pow(RGB_SIZE, 2)) % RGB_SIZE;
 
-		const coords = [
-			Math.floor(256 * (x / (RGB_SIZE - 1))),
-			Math.floor(256 * (y / (RGB_SIZE - 1))),
-			Math.floor(256 * (z / (RGB_SIZE - 1)))
+		return [x, y, z] as RGBCoords;
+	}
+
+	function coordinatesToRGB(coords: RGBCoords): RGBColorValues {
+		return [
+			Math.floor(256 * (coords[0] / (RGB_SIZE - 1))),
+			Math.floor(256 * (coords[1] / (RGB_SIZE - 1))),
+			Math.floor(256 * (coords[2] / (RGB_SIZE - 1)))
 		];
-		return coords as RGBCoords;
 	}
 
 	function canvasIdToCoordinates(id: number) {
