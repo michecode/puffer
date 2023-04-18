@@ -38,6 +38,7 @@ const RGB_SIZE = SIZE_MAP[canvasSize].rgb;
 const RGB_FULL_SIZE = Math.pow(RGB_SIZE, 3);
 const CANVAS_WIDTH = SIZE_MAP[canvasSize].canvas;
 const CANVAS_ID_LIMIT = Math.pow(CANVAS_WIDTH, 2);
+const RESTRICT_OVERLAP = true;
 
 // Data
 const canvasOptions: Set<number> = new Set();
@@ -141,8 +142,12 @@ function updateCanvasTrackers(id: number, color: RGBCoords) {
 	canvasHistory.set(id, color);
 	addPossible(CANVAS_WIDTH); // down
 	addPossible(-CANVAS_WIDTH); // up
-	addPossible(1); // right
-	addPossible(-1); // left
+	if (RESTRICT_OVERLAP && (id + 1) % CANVAS_WIDTH !== 0) {
+		addPossible(1); // right
+	}
+	if (RESTRICT_OVERLAP && id % CANVAS_WIDTH !== 0) {
+		addPossible(-1); // left
+	}
 }
 
 function updateColorTrackers(coords: RGBCoords) {
