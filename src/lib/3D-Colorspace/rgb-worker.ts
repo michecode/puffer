@@ -97,25 +97,34 @@ updateCanvasTrackers(canvasSeed, [csX, csY, csZ]);
 /*
 PROCESSING LOOP @maddy LOOK HERE!!!!
 */
-self.onmessage = function (event) {
+onmessage = function (event) {
+	console.log('got a message. fuck off.');
+};
+
+function process() {
 	while (canvasHistory.size !== CANVAS_ID_LIMIT) {
 		const next = getNextPixel();
 		const searchPoint = getCoordsToSearchFrom(next);
 		const closestColor = search3D(searchPoint);
 		const [x, y] = canvasIdToCoordinates(next);
 
-		console.log(closestColor, 'closestColor!');
 		const [r, g, b] = coordinatesToRGB(closestColor);
-		console.log(r, g, b);
 		updateBuffer.push([x, y, r, g, b]);
 
 		updateColorTrackers(closestColor);
 		updateCanvasTrackers(next, closestColor);
+		if (canvasHistory.size % 10000 === 0) {
+			// every 10000 pixels send the buffer
+			self.postMessage(updateBuffer);
+			updateBuffer = [];
+		}
 	}
-
+	// send remaining pixels
 	self.postMessage(updateBuffer);
 	updateBuffer = [];
-};
+}
+
+process();
 
 /*
   BELOW ARE HELPERS.
@@ -139,7 +148,6 @@ function updateCanvasTrackers(id: number, color: RGBCoords) {
 function updateColorTrackers(coords: RGBCoords) {
 	function addPossible(coords: RGBCoords) {
 		// const colorPointId = coordinatesToColorId(coords);
-		console.log(colorHistory);
 		if (colorOptionsSet.has(coords.toString())) {
 			return;
 		}
@@ -148,7 +156,6 @@ function updateColorTrackers(coords: RGBCoords) {
 			if (coords[0] >= 0 && coords[0] < RGB_SIZE) {
 				if (coords[1] >= 0 && coords[1] < RGB_SIZE) {
 					if (coords[2] >= 0 && coords[2] < RGB_SIZE) {
-						console.log('inserting', coords);
 						colorOptions.insert(coords);
 						colorOptionsSet.add(coords.toString());
 					}
@@ -160,7 +167,6 @@ function updateColorTrackers(coords: RGBCoords) {
 	const [x, y, z] = coords;
 
 	colorOptions.remove(coords);
-	console.log('should have removed', coords);
 	colorHistory.add(coords.toString());
 	addPossible([x + 1, y, z]);
 	addPossible([x - 1, y, z]);

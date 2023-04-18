@@ -40,10 +40,10 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 	const sketch: Sketch = (p5: p5) => {
 		let painting: p5.Image;
 		p5.disableFriendlyErrors = true;
-		const worker = new Worker(new URL('./rgb-worker.ts', import.meta.url), {
+		const worker = new Worker(new URL('rgb-worker.ts', import.meta.url), {
+			/* @vite-ignore */
 			name: canvasSize,
 			type: 'module'
-			/* @vite-ignore */
 		});
 		let pixelCount = 0;
 
@@ -58,10 +58,9 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 
 			painting.updatePixels();
 			p5.image(painting, 0, 0);
-			p5.frameRate(1); // x worker requests per second
-		};
+			p5.frameRate(1);
 
-		p5.draw = () => {
+			worker.postMessage('heyyy:3');
 			worker.onmessage = function (event) {
 				const bufferedPixels = event.data;
 				bufferedPixels.forEach((pixel: PixelData) => {
@@ -70,13 +69,12 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 					pixelCount++;
 				});
 			};
+		};
 
-			worker.postMessage('heyyy:3');
-
+		p5.draw = () => {
 			if (pixelCount === CANVAS_ID_LIMIT) {
 				p5.noLoop();
 				worker.terminate();
-				alert('Done');
 			}
 
 			// place pixel
