@@ -25,22 +25,32 @@
 	};
 </script>
 
-<div class="flex flex-col justify-between bg-primrose min-h-[90vh] p-2 rounded-xl shadow-xl">
+<div
+	class="flex flex-col justify-between bg-primrose min-h-[90vh] w-full lg:w-1/5 p-2 rounded-xl shadow-xl"
+>
 	<!-- OPTION GROUP -->
-	<div>
-		<select name="canvas size" bind:value={canvasSize}>
-			<option value="nano">8x8</option>
-			<option value="xs">64x64</option>
-			<option value="sm">125x125</option>
-			<option value="md">512x512</option>
-			<option value="lg">1000x1000</option>
-			<option value="xl">4096x4096</option>
-			<option value="custom" disabled>custom</option>
-		</select>
-		<label>
-			<input type="checkbox" bind:checked={restrictOverlap} />
-			Restrict Overlap
-		</label>
+	<div class="flex flex-col space-y-2">
+		<h1 class="font-black">Options</h1>
+		<div>
+			<h6>Canvas Size</h6>
+			<select name="canvas size" bind:value={canvasSize}>
+				<option value="nano">8x8</option>
+				<option value="xs">64x64</option>
+				<option value="sm">125x125</option>
+				<option value="md">512x512</option>
+				<option value="lg">1000x1000</option>
+				<option value="xl">4096x4096</option>
+				<option value="custom" disabled>custom</option>
+			</select>
+		</div>
+
+		<div>
+			<h6>Flags</h6>
+			<label>
+				<input type="checkbox" bind:checked={restrictOverlap} />
+				Restrict Overlap
+			</label>
+		</div>
 	</div>
 	<!-- BUTTON GROUP -->
 	<div class="flex flex-col space-y-2">

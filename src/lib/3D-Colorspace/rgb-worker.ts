@@ -27,10 +27,12 @@ const SIZE_MAP = {
 	}
 };
 
-const options = self.name.split(':');
+const generationParameters = self.name.split(':');
+console.log(generationParameters, 'hey');
 // order of options is [ size, restrict-overlap ]
-const canvasSize = options[0] as CanvasSize;
-const RESTRICT_OVERLAP = options[1] === 'true';
+const canvasSize = generationParameters[0] as CanvasSize;
+const RESTRICT_OVERLAP = generationParameters[1] === 'true';
+console.log(RESTRICT_OVERLAP);
 
 const RGB_SIZE = SIZE_MAP[canvasSize].rgb;
 const RGB_FULL_SIZE = Math.pow(RGB_SIZE, 3);

@@ -3,7 +3,7 @@
 	import Controls from '$lib/Controls.svelte';
 </script>
 
-<div class="flex flex-col lg:flex-row items-center w-fit">
+<div class="flex flex-col lg:flex-row items-center justify-between">
 	<Canvas />
 	<Controls />
 </div>
