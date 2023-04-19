@@ -1,10 +1,5 @@
 import { kdTree } from 'kd-tree-javascript';
 
-type RGBCoords = [x: number, y: number, z: number];
-type RGBColorValues = [r: number, g: number, b: number];
-type PixelData = [x: number, y: number, r: number, g: number, b: number];
-type CanvasSize = 'nano' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-
 const SIZE_MAP = {
 	nano: {
 		rgb: 4,
@@ -32,13 +27,15 @@ const SIZE_MAP = {
 	}
 };
 
-const canvasSize = self.name as CanvasSize;
+const options = self.name.split(':');
+// order of options is [ size, restrict-overlap ]
+const canvasSize = options[0] as CanvasSize;
+const RESTRICT_OVERLAP = options[1] === 'true';
 
 const RGB_SIZE = SIZE_MAP[canvasSize].rgb;
 const RGB_FULL_SIZE = Math.pow(RGB_SIZE, 3);
 const CANVAS_WIDTH = SIZE_MAP[canvasSize].canvas;
 const CANVAS_ID_LIMIT = Math.pow(CANVAS_WIDTH, 2);
-const RESTRICT_OVERLAP = true;
 
 // Data
 const canvasOptions: Set<number> = new Set();

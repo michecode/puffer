@@ -1,8 +1,6 @@
 import type p5 from 'p5';
 import type { Sketch } from 'p5-svelte';
-
-type CanvasSize = 'nano' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-type PixelData = [x: number, y: number, r: number, g: number, b: number];
+import { puff, download } from '../store';
 
 const SIZE_MAP = {
 	nano: {
@@ -31,7 +29,7 @@ const SIZE_MAP = {
 	}
 };
 
-export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
+export const sketchRgbSmoke = (canvasSize: CanvasSize, restrictOverlap: boolean) => {
 	const DISPLAY_WIDTH = 512;
 	const CANVAS_WIDTH = SIZE_MAP[canvasSize].canvas;
 	const CANVAS_ID_LIMIT = Math.pow(CANVAS_WIDTH, 2);
@@ -42,7 +40,7 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 		p5.disableFriendlyErrors = true;
 		const worker = new Worker(new URL('rgb-worker.ts', import.meta.url), {
 			/* @vite-ignore */
-			name: canvasSize,
+			name: `${canvasSize}:${restrictOverlap}`,
 			type: 'module'
 		});
 		let pixelCount = 0;
@@ -75,6 +73,9 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 			if (pixelCount === CANVAS_ID_LIMIT) {
 				p5.noLoop();
 				worker.terminate();
+				download.set(function () {
+					p5.save(painting, 'puff.png');
+				});
 			}
 
 			// place pixel
@@ -84,5 +85,5 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize) => {
 		};
 	};
 
-	return sketch;
+	puff.set(sketch);
 };
