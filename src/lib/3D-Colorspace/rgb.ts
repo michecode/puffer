@@ -30,10 +30,19 @@ const SIZE_MAP = {
 };
 
 export const sketchRgbSmoke = (canvasSize: CanvasSize, restrictOverlap: boolean) => {
-	const DISPLAY_WIDTH = 512;
+	const puffContainer = document.getElementById('puff-container');
+	if (puffContainer === null) {
+		alert('Puff Container is null....');
+		return;
+	}
+	const containerWidth = puffContainer.offsetWidth;
+	const containerHeight = puffContainer.offsetHeight;
+
+	const DISPLAY_WIDTH = containerWidth;
+	const RGB_SIZE = SIZE_MAP[canvasSize].rgb;
 	const CANVAS_WIDTH = SIZE_MAP[canvasSize].canvas;
-	const CANVAS_ID_LIMIT = Math.pow(CANVAS_WIDTH, 2);
-	const SCALE = DISPLAY_WIDTH / SIZE_MAP[canvasSize].canvas;
+	const CANVAS_ID_LIMIT = Math.pow(RGB_SIZE, 3);
+	const SCALE = DISPLAY_WIDTH / CANVAS_WIDTH;
 
 	const sketch: Sketch = (p5: p5) => {
 		let painting: p5.Image;
