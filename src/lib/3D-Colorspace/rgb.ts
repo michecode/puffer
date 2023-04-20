@@ -2,34 +2,12 @@ import type p5 from 'p5';
 import type { Sketch } from 'p5-svelte';
 import { puff, download } from '../store';
 
-const SIZE_MAP = {
-	nano: {
-		rgb: 4,
-		canvas: 8
-	},
-	xs: {
-		rgb: 16,
-		canvas: 64
-	},
-	sm: {
-		rgb: 25,
-		canvas: 125
-	},
-	md: {
-		rgb: 64,
-		canvas: 512
-	},
-	lg: {
-		rgb: 100,
-		canvas: 1000
-	},
-	xl: {
-		rgb: 256,
-		canvas: 4096
-	}
-};
-
-export const sketchRgbSmoke = (canvasSize: CanvasSize, restrictOverlap: boolean) => {
+export const sketchRgbSmoke = (
+	width: number,
+	height: number,
+	rgbSize: number,
+	restrictOverlap: boolean
+) => {
 	const puffContainer = document.getElementById('puff-container');
 	if (puffContainer === null) {
 		alert('Puff Container is null....');
@@ -39,9 +17,11 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize, restrictOverlap: boolean)
 	const containerHeight = puffContainer.offsetHeight;
 
 	const DISPLAY_WIDTH = containerWidth;
-	const RGB_SIZE = SIZE_MAP[canvasSize].rgb;
-	const CANVAS_WIDTH = SIZE_MAP[canvasSize].canvas;
-	const CANVAS_ID_LIMIT = Math.pow(RGB_SIZE, 3);
+	const DISPLAY_HEIGHT = containerHeight;
+	const RGB_SIZE = rgbSize;
+	const CANVAS_WIDTH = width;
+	const CANVAS_HEIGHT = height;
+	const CANVAS_ID_LIMIT = CANVAS_WIDTH * CANVAS_HEIGHT;
 	const SCALE = DISPLAY_WIDTH / CANVAS_WIDTH;
 
 	const sketch: Sketch = (p5: p5) => {
@@ -49,7 +29,7 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize, restrictOverlap: boolean)
 		p5.disableFriendlyErrors = true;
 		const worker = new Worker(new URL('rgb-worker.ts', import.meta.url), {
 			/* @vite-ignore */
-			name: `${canvasSize}:${restrictOverlap}`,
+			name: `${CANVAS_WIDTH}:${CANVAS_HEIGHT}:${RGB_SIZE}:${restrictOverlap}`,
 			type: 'module'
 		});
 		let pixelCount = 0;
@@ -58,9 +38,9 @@ export const sketchRgbSmoke = (canvasSize: CanvasSize, restrictOverlap: boolean)
 			// ~~~~~~~~~~~~~~~~~~~~~~~
 			// DISPLAY SETUP
 			// ~~~~~~~~~~~~~~~~~~~~~~~
-			p5.createCanvas(DISPLAY_WIDTH, DISPLAY_WIDTH);
+			p5.createCanvas(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 			p5.noSmooth();
-			painting = p5.createImage(CANVAS_WIDTH, CANVAS_WIDTH);
+			painting = p5.createImage(CANVAS_WIDTH, CANVAS_HEIGHT);
 			painting.loadPixels();
 
 			painting.updatePixels();

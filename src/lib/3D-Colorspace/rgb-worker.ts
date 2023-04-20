@@ -1,43 +1,16 @@
 import { kdTree } from 'kd-tree-javascript';
 
-const SIZE_MAP = {
-	nano: {
-		rgb: 4,
-		canvas: 8
-	},
-	xs: {
-		rgb: 16,
-		canvas: 64
-	},
-	sm: {
-		rgb: 25,
-		canvas: 125
-	},
-	md: {
-		rgb: 64,
-		canvas: 512
-	},
-	lg: {
-		rgb: 100,
-		canvas: 1000
-	},
-	xl: {
-		rgb: 256,
-		canvas: 4096
-	}
-};
-
 const generationParameters = self.name.split(':');
 console.log(generationParameters, 'hey');
-// order of options is [ size, restrict-overlap ]
-const canvasSize = generationParameters[0] as CanvasSize;
-const RESTRICT_OVERLAP = generationParameters[1] === 'true';
-console.log(RESTRICT_OVERLAP);
+// order of options is [ width, height, rgbSize, restrict-overlap ]
 
-const RGB_SIZE = SIZE_MAP[canvasSize].rgb;
+const CANVAS_WIDTH = Number(generationParameters[0]);
+const CANVAS_HEIGHT = Number(generationParameters[1]);
+const RGB_SIZE = Number(generationParameters[2]);
 const RGB_FULL_SIZE = Math.pow(RGB_SIZE, 3);
-const CANVAS_WIDTH = SIZE_MAP[canvasSize].canvas;
-const CANVAS_ID_LIMIT = Math.pow(CANVAS_WIDTH, 2);
+const CANVAS_ID_LIMIT = CANVAS_WIDTH * CANVAS_HEIGHT;
+// Flags
+const RESTRICT_OVERLAP = generationParameters[3] === 'true';
 
 // Data
 const canvasOptions: Set<number> = new Set();

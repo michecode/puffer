@@ -2,15 +2,41 @@
 	import { slide, blur, scale } from 'svelte/transition';
 	import { sketchRgbSmoke } from '$lib/3D-Colorspace/rgb';
 	import { puff, download } from '../lib/store';
+	import { SIZE_MAP } from './globals';
 
 	// GENERATION OPTION STATES
-	let canvasSize = 'md' as CanvasSize;
+	let canvasOption = 'custom';
+	let canvasWidth: string, canvasHeight: string, rgbSize: string;
 	let restrictOverlap = true;
 	let mode = 'rgb';
 
 	const generate = () => {
+		let width: number, height: number, rgb: number;
+		if (canvasOption === 'custom') {
+			width = Number(canvasWidth);
+			height = Number(canvasHeight);
+			rgb = Number(rgbSize);
+		} else {
+			width = SIZE_MAP[canvasOption as CanvasSize].canvas;
+			height = width;
+			rgb = SIZE_MAP[canvasOption as CanvasSize].rgb;
+		}
+
+		if (!width || width < 1) {
+			alert('Invalid Canvas Width');
+			return;
+		}
+		if (!height || height < 1) {
+			alert('Invalid Canvas Height');
+			return;
+		}
+		if (!rgb || rgb < 2 || rgb > 256) {
+			alert('Invalid RGB Size');
+			return;
+		}
+
 		if (mode === 'rgb') {
-			sketchRgbSmoke(canvasSize, restrictOverlap);
+			sketchRgbSmoke(width, height, rgb, restrictOverlap);
 		}
 	};
 
@@ -32,16 +58,36 @@
 	<div class="flex flex-col space-y-2">
 		<h1 class="font-black">Options</h1>
 		<div>
-			<h6>Canvas Size</h6>
-			<select name="canvas size" bind:value={canvasSize}>
-				<option value="nano">8x8</option>
-				<option value="xs">64x64</option>
-				<option value="sm">125x125</option>
-				<option value="md">512x512</option>
-				<option value="lg">1000x1000</option>
-				<option value="xl">4096x4096</option>
-				<option value="custom" disabled>custom</option>
-			</select>
+			<label>
+				Canvas Size<br />
+				<select name="canvas size" bind:value={canvasOption}>
+					<option value="nano">8x8</option>
+					<option value="xs">64x64</option>
+					<option value="sm">125x125</option>
+					<option value="md">512x512</option>
+					<option value="lg">1000x1000</option>
+					<option value="xl">4096x4096</option>
+					<option value="custom">custom</option>
+				</select>
+			</label>
+			{#if canvasOption === 'custom'}
+				<div class="flex flex-col">
+					<label>
+						Width
+						<br />
+						<input type="number" placeholder="1920" bind:value={canvasWidth} />
+					</label>
+					<label>
+						Height
+						<br />
+						<input type="number" placeholder="1080" bind:value={canvasHeight} />
+					</label>
+					<label>
+						RGB Root Size (2-256)<br />
+						<input type="number" placeholder="256" bind:value={rgbSize} />
+					</label>
+				</div>
+			{/if}
 		</div>
 
 		<div>
