@@ -91,7 +91,7 @@
 			{/if}
 		</div>
 
-		<div>
+		<div class="flex flex-col">
 			<h6>Flags</h6>
 			<label>
 				<input type="checkbox" bind:checked={restrictOverlap} />

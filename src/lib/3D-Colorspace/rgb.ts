@@ -61,6 +61,7 @@ export const sketchRgbSmoke = (
 
 		p5.draw = () => {
 			if (pixelCount === CANVAS_ID_LIMIT) {
+				console.log('done');
 				p5.noLoop();
 				worker.terminate();
 				download.set(function () {
