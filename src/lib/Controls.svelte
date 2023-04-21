@@ -8,6 +8,7 @@
 	let canvasOption = 'custom';
 	let canvasWidth: string, canvasHeight: string, rgbSize: string;
 	let restrictOverlap = true;
+	let allowRegen = true;
 	let mode = 'rgb';
 
 	const generate = () => {
@@ -36,7 +37,7 @@
 		}
 
 		if (mode === 'rgb') {
-			sketchRgbSmoke(width, height, rgb, restrictOverlap);
+			sketchRgbSmoke(width, height, rgb, restrictOverlap, allowRegen);
 		}
 	};
 
@@ -95,6 +96,10 @@
 			<label>
 				<input type="checkbox" bind:checked={restrictOverlap} />
 				Restrict Overlap
+			</label>
+			<label>
+				<input type="checkbox" bind:checked={allowRegen} />
+				Allow KD-Tree Regen
 			</label>
 		</div>
 	</div>

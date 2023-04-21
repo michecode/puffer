@@ -1,7 +1,7 @@
 import { kdTree } from 'kd-tree-javascript';
 
 const generationParameters = self.name.split(':');
-// order of options is [ width, height, rgbSize, restrict-overlap ]
+// order of options is [ width, height, rgbSize, restrict-overlap, allow-regen ]
 
 const CANVAS_WIDTH = Number(generationParameters[0]);
 const CANVAS_HEIGHT = Number(generationParameters[1]);
@@ -10,12 +10,12 @@ const RGB_FULL_SIZE = Math.pow(RGB_SIZE, 3);
 const CANVAS_ID_LIMIT = CANVAS_WIDTH * CANVAS_HEIGHT;
 // Flags
 const RESTRICT_OVERLAP = generationParameters[3] === 'true';
-const ALLOW_COLOR_TREE_REGENERATION = true; // generationParameters[4] === 'true';
+const ALLOW_COLOR_TREE_REGENERATION = generationParameters[4] === 'true';
 
 // Data
 const canvasOptions: Set<number> = new Set();
 const canvasHistory: Map<number, RGBCoords> = new Map(); // key = canvas id || value = color id
-let colorOptions: kdTree<RGBCoords> = generateKDTree();
+let colorOptions: kdTree<RGBCoords>;
 
 let updateBuffer: PixelData[] = [];
 
@@ -32,6 +32,8 @@ const [x, y] = canvasIdToCoordinates(canvasSeed);
 const [csX, csY, csZ] = colorIdToCoordinates(colorSeed);
 const [r, g, b] = coordinatesToRGB([csX, csY, csZ]);
 updateBuffer.push([x, y, r, g, b]);
+
+generateKDTree();
 
 updateCanvasTrackers(canvasSeed, [csX, csY, csZ]);
 // YOU HAVE YOU REMOVE THE FIRST ONE LIKE THIS OR IT THROWS ERRORS I WILL SCREAM FOREVER
@@ -61,17 +63,14 @@ function process() {
 		) {
 			updateCanvasTrackers(next, closestColor);
 			updateColorTrackers(closestColor);
-			console.log('UMMM', colorOptions.balanceFactor());
-			// if there's space for more pixels
+			// it hits zero if theres no nodes in tree
 			if (colorOptions.balanceFactor() === -0 || colorOptions.balanceFactor() === Infinity) {
-				console.log('hey');
 				if (ALLOW_COLOR_TREE_REGENERATION) {
 					console.log('regen');
-					colorOptions = generateKDTree();
+					generateKDTree();
 				}
 			}
 		} else {
-			console.log('nope');
 			updateCanvasTrackers(next, closestColor);
 			updateColorTrackers(closestColor);
 		}
@@ -206,5 +205,5 @@ function generateKDTree() {
 	for (let i = 0; i < RGB_FULL_SIZE; i++) {
 		points[i] = colorIdToCoordinates(i);
 	}
-	return new kdTree(points, distanceEquation, [0, 1, 2]);
+	colorOptions = new kdTree(points, distanceEquation, [0, 1, 2]);
 }

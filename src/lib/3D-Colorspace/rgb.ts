@@ -6,7 +6,8 @@ export const sketchRgbSmoke = (
 	width: number,
 	height: number,
 	rgbSize: number,
-	restrictOverlap: boolean
+	restrictOverlap: boolean,
+	allowRegen: boolean
 ) => {
 	const puffContainer = document.getElementById('puff-container');
 	if (puffContainer === null) {
@@ -29,7 +30,7 @@ export const sketchRgbSmoke = (
 		p5.disableFriendlyErrors = true;
 		const worker = new Worker(new URL('rgb-worker.ts', import.meta.url), {
 			/* @vite-ignore */
-			name: `${CANVAS_WIDTH}:${CANVAS_HEIGHT}:${RGB_SIZE}:${restrictOverlap}`,
+			name: `${CANVAS_WIDTH}:${CANVAS_HEIGHT}:${RGB_SIZE}:${restrictOverlap}:${allowRegen}`,
 			type: 'module'
 		});
 		let pixelCount = 0;
