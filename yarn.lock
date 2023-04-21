@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@cloudflare/workers-types@^4.20221111.1":
+  version "4.20230404.0"
+  resolved "https://registry.yarnpkg.com/@cloudflare/workers-types/-/workers-types-4.20230404.0.tgz#414dd2d79765c291ec247e501ed7cff85dd4eae4"
+  integrity sha512-fG3oaJX1icfsGV74nhx1+AC6opvZsGqnpx6FvrcVqQaBmCNkjKNqDRFrpasXWFiOIvysBXHKQAzsAJkBZgnM+A==
+
 "@esbuild/android-arm64@0.16.17":
   version "0.16.17"
   resolved "https://registry.yarnpkg.com/@esbuild/android-arm64/-/android-arm64-0.16.17.tgz#cf91e86df127aa3d141744edafcba0abdc577d23"
@@ -213,6 +218,15 @@
   integrity sha512-b+gkHFZgD771kgV3aO4avHFd7y1zhmMYy9i6xOK7m/rwmwaRO8gnF5zBc0Rgca80B2PMU1bKNxyBTHA14OzUAQ==
   dependencies:
     import-meta-resolve "^2.2.0"
+
+"@sveltejs/adapter-cloudflare@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@sveltejs/adapter-cloudflare/-/adapter-cloudflare-2.2.0.tgz#6d99235cc7312b0f79669ca84eee6052753aa00d"
+  integrity sha512-B3GQtdPBLHG1eTjOUCjTOqlkTEuYbeSFFw984sEclWxNnLgj3dO6DY8pRTVyrltwNtKRG/7W+ltPVzcbcn30Dg==
+  dependencies:
+    "@cloudflare/workers-types" "^4.20221111.1"
+    esbuild "^0.16.3"
+    worktop "0.8.0-next.14"
 
 "@sveltejs/kit@^1.5.0":
   version "1.11.0"
@@ -641,7 +655,7 @@ es6-promise@^3.1.2:
   resolved "https://registry.npmjs.org/es6-promise/-/es6-promise-3.3.1.tgz"
   integrity sha512-SOp9Phqvqn7jtEUxPWdWfWoLmyt2VaJ6MpvP9Comy1MceMXqE6bxvaTu4iaxpYYPzhny28Lc+M87/c2cPK6lDg==
 
-esbuild@^0.16.14:
+esbuild@^0.16.14, esbuild@^0.16.3:
   version "0.16.17"
   resolved "https://registry.npmjs.org/esbuild/-/esbuild-0.16.17.tgz"
   integrity sha512-G8LEkV0XzDMNwXKgM0Jwu3nY3lSTwSGY6XbxM9cr9+s0T/qSV1q1JVPBGzm3dcjhCic9+emZDmMffkwgPeOeLg==
@@ -1406,6 +1420,11 @@ readdirp@~3.6.0:
   dependencies:
     picomatch "^2.2.1"
 
+regexparam@^2.0.0:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/regexparam/-/regexparam-2.0.1.tgz#c912f5dae371e3798100b3c9ce22b7414d0889fa"
+  integrity sha512-zRgSaYemnNYxUv+/5SeoHI0eJIgTL/A2pUtXUPLHQxUldagouJ9p+K6IbIZ/JiQuCEv2E2B1O11SjVQy3aMCkw==
+
 resolve-from@^4.0.0:
   version "4.0.0"
   resolved "https://registry.npmjs.org/resolve-from/-/resolve-from-4.0.0.tgz"
@@ -1737,6 +1756,14 @@ word-wrap@^1.2.3:
   version "1.2.3"
   resolved "https://registry.npmjs.org/word-wrap/-/word-wrap-1.2.3.tgz"
   integrity sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==
+
+worktop@0.8.0-next.14:
+  version "0.8.0-next.14"
+  resolved "https://registry.yarnpkg.com/worktop/-/worktop-0.8.0-next.14.tgz#bbb81a61cd2b40bada91961cf3caaf2c6ba17c1a"
+  integrity sha512-RZgqHu1w/JcUdWOE/BUEAzarrUUHh39eWkLdX8XpA6MfgLJF6X5Vl26CV7/wcm4O/UpZvHMGJUtB9eYTqDjc9g==
+  dependencies:
+    mrmime "^1.0.0"
+    regexparam "^2.0.0"
 
 wrappy@1:
   version "1.0.2"
