@@ -1,7 +1,6 @@
 import { kdTree } from 'kd-tree-javascript';
 
 const generationParameters = self.name.split(':');
-console.log(generationParameters, 'hey');
 // order of options is [ width, height, rgbSize, restrict-overlap ]
 
 const CANVAS_WIDTH = Number(generationParameters[0]);
@@ -11,13 +10,12 @@ const RGB_FULL_SIZE = Math.pow(RGB_SIZE, 3);
 const CANVAS_ID_LIMIT = CANVAS_WIDTH * CANVAS_HEIGHT;
 // Flags
 const RESTRICT_OVERLAP = generationParameters[3] === 'true';
+const ALLOW_COLOR_TREE_REGENERATION = true; // generationParameters[4] === 'true';
 
 // Data
 const canvasOptions: Set<number> = new Set();
 const canvasHistory: Map<number, RGBCoords> = new Map(); // key = canvas id || value = color id
-let colorHistory: Set<string>;
-let colorOptionsSet: Set<string>;
-let colorOptions: kdTree<RGBCoords>;
+let colorOptions: kdTree<RGBCoords> = generateKDTree();
 
 let updateBuffer: PixelData[] = [];
 
@@ -35,25 +33,12 @@ const [csX, csY, csZ] = colorIdToCoordinates(colorSeed);
 const [r, g, b] = coordinatesToRGB([csX, csY, csZ]);
 updateBuffer.push([x, y, r, g, b]);
 
-initializeColorTrackers(colorSeed);
-
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-// FIRST TRACKER UPDATE
-// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-/*
-It is initialized in the above method call.
-We call the color history here because we "drew" the pixel with the buffer push.
-But in the initalize trackers call we only add to options there.
-*/
-// @ts-ignore
-
-// prep trackers
-// we only need to update canvas here bc I hard coded the first color update above
 updateCanvasTrackers(canvasSeed, [csX, csY, csZ]);
+// YOU HAVE YOU REMOVE THE FIRST ONE LIKE THIS OR IT THROWS ERRORS I WILL SCREAM FOREVER
+// IT LITERALLY OUTPUTS THE SAME ARRAY
+const nearest = search3D([csX, csY, csZ]);
+updateColorTrackers(nearest);
 
-/*
-PROCESSING LOOP @maddy LOOK HERE!!!!
-*/
 onmessage = function (event) {
 	console.log('got a message. fuck off.');
 };
@@ -74,24 +59,21 @@ function process() {
 			closestColor[1] === searchPoint[1] &&
 			closestColor[2] === searchPoint[2]
 		) {
-			// if there is space for another pixel, basically run the above again
-			if (canvasHistory.size + 1 !== CANVAS_ID_LIMIT) {
-				updateCanvasTrackers(next, closestColor);
-				const secondNext = getNextPixel();
-				const [x, y] = canvasIdToCoordinates(secondNext);
-				const newSeed = Math.floor(Math.random() * RGB_FULL_SIZE);
-				const [csX, csY, csZ] = colorIdToCoordinates(colorSeed);
-				const [r, g, b] = coordinatesToRGB([csX, csY, csZ]);
-				updateBuffer.push([x, y, r, g, b]);
-				initializeColorTrackers(newSeed);
-			} else {
-				// this happens when canvas size === rgb size (e.g. 512x512)
-				updateColorTrackers(closestColor);
-				updateCanvasTrackers(next, closestColor);
+			updateCanvasTrackers(next, closestColor);
+			updateColorTrackers(closestColor);
+			console.log('UMMM', colorOptions.balanceFactor());
+			// if there's space for more pixels
+			if (colorOptions.balanceFactor() === -0 || colorOptions.balanceFactor() === Infinity) {
+				console.log('hey');
+				if (ALLOW_COLOR_TREE_REGENERATION) {
+					console.log('regen');
+					colorOptions = generateKDTree();
+				}
 			}
 		} else {
-			updateColorTrackers(closestColor);
+			console.log('nope');
 			updateCanvasTrackers(next, closestColor);
+			updateColorTrackers(closestColor);
 		}
 
 		if (canvasHistory.size % 10000 === 0) {
@@ -131,34 +113,7 @@ function updateCanvasTrackers(id: number, color: RGBCoords) {
 }
 
 function updateColorTrackers(coords: RGBCoords) {
-	function addPossible(coords: RGBCoords) {
-		// const colorPointId = coordinatesToColorId(coords);
-		if (colorOptionsSet.has(coords.toString())) {
-			return;
-		}
-
-		if (!colorHistory.has(coords.toString())) {
-			if (coords[0] >= 0 && coords[0] < RGB_SIZE) {
-				if (coords[1] >= 0 && coords[1] < RGB_SIZE) {
-					if (coords[2] >= 0 && coords[2] < RGB_SIZE) {
-						colorOptions.insert(coords);
-						colorOptionsSet.add(coords.toString());
-					}
-				}
-			}
-		}
-	}
-	// const colorPointId = coordinatesToColorId(coords);
-	const [x, y, z] = coords;
-
 	colorOptions.remove(coords);
-	colorHistory.add(coords.toString());
-	addPossible([x + 1, y, z]);
-	addPossible([x - 1, y, z]);
-	addPossible([x, y + 1, z]);
-	addPossible([x, y - 1, z]);
-	addPossible([x, y, z + 1]);
-	addPossible([x, y, z - 1]);
 }
 
 function coordinatesToColorId(coords: RGBCoords) {
@@ -239,41 +194,17 @@ function search3D(searchPoint: RGBCoords) {
 	}
 }
 
-/*
-	ACTIONS:
-	- restart history and option SETS
-	- add provided seed to history
-	- adds surrounding ~6 points into "initialPoints" for new kdtree and also adds to SET
-	- creates new kdTree
-*/
-function initializeColorTrackers(seed: number) {
-	colorOptionsSet = new Set();
-	colorHistory = new Set();
-
-	// colorspace x, colorspace y etc.
-	const [csX, csY, csZ] = colorIdToCoordinates(seed);
-	colorHistory.add([csX, csY, csZ].toString());
-
-	// build colorspace kd tree
-	const initialPoints: RGBCoords[] = [];
-	function pushPoints(coords: RGBCoords) {
-		if (xyzInBounds(coords)) {
-			initialPoints.push(coords);
-			colorOptionsSet.add(coords.toString());
-		}
-	}
-	pushPoints([csX + 1, csY, csZ]);
-	pushPoints([csX - 1, csY, csZ]);
-	pushPoints([csX, csY + 1, csZ]);
-	pushPoints([csX, csY - 1, csZ]);
-	pushPoints([csX, csY, csZ + 1]);
-	pushPoints([csX, csY, csZ - 1]);
-
+function generateKDTree() {
 	function distanceEquation(option: RGBCoords, origin: RGBCoords) {
 		// option 0 = x 1 = y z = 2
 		return (
 			(option[0] - origin[0]) ** 2 + (option[1] - origin[1]) ** 2 + (option[2] - origin[2]) ** 2
 		);
 	}
-	colorOptions = new kdTree(initialPoints, distanceEquation, [0, 1, 2]);
+
+	const points = new Array(RGB_FULL_SIZE);
+	for (let i = 0; i < RGB_FULL_SIZE; i++) {
+		points[i] = colorIdToCoordinates(i);
+	}
+	return new kdTree(points, distanceEquation, [0, 1, 2]);
 }
