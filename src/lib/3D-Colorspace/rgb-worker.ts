@@ -23,7 +23,7 @@ let updateBuffer: PixelData[] = [];
 // DATA SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~
 // get seeds. random number between 0 and RGB's color possibilities
-const canvasSeed = Math.floor(Math.random() * RGB_FULL_SIZE);
+const canvasSeed = Math.floor(Math.random() * CANVAS_ID_LIMIT);
 const colorSeed = Math.floor(Math.random() * RGB_FULL_SIZE);
 
 // paint first pixel
@@ -49,7 +49,6 @@ function process() {
 	while (canvasHistory.size !== CANVAS_ID_LIMIT) {
 		const next = getNextPixel();
 		const searchPoint = getCoordsToSearchFrom(next);
-		console.log(searchPoint, next, 'sp+nxt');
 		const closestColor = search3D(searchPoint);
 		const [x, y] = canvasIdToCoordinates(next);
 
@@ -65,7 +64,7 @@ function process() {
 			updateCanvasTrackers(next, closestColor);
 			updateColorTrackers(closestColor);
 			// it hits zero if theres no nodes in tree
-			if (colorOptions.balanceFactor() === -0 || colorOptions.balanceFactor() === Infinity) {
+			if (colorOptions.balanceFactor() === 0 || colorOptions.balanceFactor() === Infinity) {
 				if (ALLOW_COLOR_TREE_REGENERATION) {
 					console.log('regen');
 					generateKDTree();
@@ -203,8 +202,7 @@ function search3D(searchPoint: RGBCoords) {
 
 function generateKDTree() {
 	function distanceEquation(option: RGBCoords, origin: RGBCoords) {
-		// option 0 = x 1 = y z = 2
-		console.log(option, origin);
+		// option 0 = x 1 = y 2 = z
 		return (
 			(option[0] - origin[0]) ** 2 + (option[1] - origin[1]) ** 2 + (option[2] - origin[2]) ** 2
 		);
