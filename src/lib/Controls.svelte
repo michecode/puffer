@@ -5,30 +5,30 @@
 	import { SIZE_MAP } from './globals';
 
 	// GENERATION OPTION STATES
-	let canvasOption = 'custom';
-	let canvasWidth: number, canvasHeight: number, rgbSize: number;
+	let paintingSizeOption = 'custom';
+	let paintingWidth: number, paintingHeight: number, rgbSize: number;
 	let restrictOverlap = true;
 	let allowRegen = true;
 	let mode = 'rgb';
 
-	$: $canvasDimensions = [canvasWidth ?? 1, canvasHeight ?? 1];
-	$: if (canvasOption !== 'custom') {
-		canvasWidth = SIZE_MAP[canvasOption as CanvasSize].canvas;
-		canvasHeight = canvasWidth;
+	$: $canvasDimensions = [paintingWidth ?? 1, paintingHeight ?? 1];
+	$: if (paintingSizeOption !== 'custom') {
+		paintingWidth = SIZE_MAP[paintingSizeOption as PaintingPresetSize].canvas;
+		paintingHeight = paintingWidth;
 		// this isnt required but it will fill the input if the user switches from a preset to a custom which i like
-		rgbSize = SIZE_MAP[canvasOption as CanvasSize].rgb;
+		rgbSize = SIZE_MAP[paintingSizeOption as PaintingPresetSize].rgb;
 	}
 
 	const generate = () => {
 		let width: number, height: number, rgb: number;
-		if (canvasOption === 'custom') {
-			width = canvasWidth;
-			height = canvasHeight;
+		if (paintingSizeOption === 'custom') {
+			width = paintingWidth;
+			height = paintingHeight;
 			rgb = rgbSize;
 		} else {
-			width = SIZE_MAP[canvasOption as CanvasSize].canvas;
+			width = SIZE_MAP[paintingSizeOption as PaintingPresetSize].canvas;
 			height = width;
-			rgb = SIZE_MAP[canvasOption as CanvasSize].rgb;
+			rgb = SIZE_MAP[paintingSizeOption as PaintingPresetSize].rgb;
 		}
 
 		if (!width || width < 1) {
@@ -47,6 +47,12 @@
 		if (mode === 'rgb') {
 			sketchRgbSmoke(width, height, rgb, restrictOverlap, allowRegen);
 		}
+	};
+
+	const getMinimumRequiredRGB = () => {
+		const cubeRoot = Math.cbrt(paintingWidth * paintingHeight);
+		const minRgbRoot = Math.floor(cubeRoot) + 1;
+		rgbSize = minRgbRoot >= 256 ? 256 : minRgbRoot;
 	};
 
 	const clear = () => {
@@ -69,7 +75,7 @@
 		<div>
 			<label>
 				Canvas Size<br />
-				<select name="canvas size" bind:value={canvasOption}>
+				<select name="canvas size" bind:value={paintingSizeOption}>
 					<option value="nano">8x8</option>
 					<option value="xs">64x64</option>
 					<option value="sm">125x125</option>
@@ -79,22 +85,27 @@
 					<option value="custom">custom</option>
 				</select>
 			</label>
-			{#if canvasOption === 'custom'}
+			{#if paintingSizeOption === 'custom'}
 				<div class="flex flex-col">
-					<label>
-						Width
-						<br />
-						<input type="number" placeholder="1920" bind:value={canvasWidth} />
-					</label>
-					<label>
-						Height
-						<br />
-						<input type="number" placeholder="1080" bind:value={canvasHeight} />
-					</label>
-					<label>
-						RGB Root Size (2-256)<br />
-						<input type="number" placeholder="256" bind:value={rgbSize} />
-					</label>
+					<div class="flex space-x-2">
+						<label>
+							Width
+							<br />
+							<input type="number" placeholder="1920" bind:value={paintingWidth} class="w-20" />
+						</label>
+						<label>
+							Height
+							<br />
+							<input type="number" placeholder="1080" bind:value={paintingHeight} class="w-20" />
+						</label>
+						<label>
+							RGB<br />
+							<input type="number" placeholder="256" bind:value={rgbSize} class="w-12" />
+						</label>
+					</div>
+					<button class="bg-orchid p-1 rounded-md mt-2 text-sm" on:click={getMinimumRequiredRGB}>
+						get minimum rgb root
+					</button>
 				</div>
 			{/if}
 		</div>

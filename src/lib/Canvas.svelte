@@ -1,3 +1,12 @@
+<!-- 
+	@FUTURE MADDY IF UR CONFUSED
+	Container refers to the raw space available between the bounds of the view port and like idk the control bar
+	Puff Container is formatted to the aspect ratio of the painting and then maximized to fit inside of the container.default
+
+	x and y are the painting dimensions
+
+	Space Element refers to the container
+ -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import P5 from 'p5-svelte';
