@@ -12,6 +12,12 @@
 	let mode = 'rgb';
 
 	$: $canvasDimensions = [canvasWidth ?? 1, canvasHeight ?? 1];
+	$: if (canvasOption !== 'custom') {
+		canvasWidth = SIZE_MAP[canvasOption as CanvasSize].canvas;
+		canvasHeight = canvasWidth;
+		// this isnt required but it will fill the input if the user switches from a preset to a custom which i like
+		rgbSize = SIZE_MAP[canvasOption as CanvasSize].rgb;
+	}
 
 	const generate = () => {
 		let width: number, height: number, rgb: number;
@@ -56,7 +62,7 @@
 </script>
 
 <div
-	class="fixed right-8 flex flex-col justify-between bg-primrose min-h-[90vh] w-full lg:w-fit p-2 rounded-xl shadow-xl"
+	class="flex flex-col justify-between bg-primrose min-h-[90vh] w-full lg:basis-64 p-2 rounded-xl shadow-xl"
 >
 	<!-- OPTION GROUP -->
 	<div class="flex flex-col space-y-2">
