@@ -14,7 +14,6 @@
 
 		const aspectRatio = x / y;
 		let canvasX, canvasY;
-		console.log(containerX, containerY, spaceEl);
 		if (aspectRatio > 1) {
 			canvasX = containerX;
 			canvasY = containerX * (y / x);
