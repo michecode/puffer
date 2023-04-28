@@ -45,7 +45,6 @@
 		}
 
 		if (mode === 'rgb') {
-			console.log(width, height, rgb);
 			sketchRgbSmoke(width, height, rgb, restrictOverlap, allowRegen);
 		}
 	};

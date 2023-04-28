@@ -49,6 +49,7 @@ function process() {
 	while (canvasHistory.size !== CANVAS_ID_LIMIT) {
 		const next = getNextPixel();
 		const searchPoint = getCoordsToSearchFrom(next);
+		console.log(searchPoint, next, 'sp+nxt');
 		const closestColor = search3D(searchPoint);
 		const [x, y] = canvasIdToCoordinates(next);
 
@@ -103,11 +104,18 @@ function updateCanvasTrackers(id: number, color: RGBCoords) {
 	canvasHistory.set(id, color);
 	addPossible(CANVAS_WIDTH); // down
 	addPossible(-CANVAS_WIDTH); // up
-	if (RESTRICT_OVERLAP && (id + 1) % CANVAS_WIDTH !== 0) {
-		addPossible(1); // right
-	}
-	if (RESTRICT_OVERLAP && id % CANVAS_WIDTH !== 0) {
-		addPossible(-1); // left
+	if (RESTRICT_OVERLAP) {
+		// if not rightmost pixel
+		if ((id + 1) % CANVAS_WIDTH !== 0) {
+			addPossible(1); // right
+		}
+		// if not leftmost pixel
+		if (id % CANVAS_WIDTH !== 0) {
+			addPossible(-1); // left
+		}
+	} else {
+		addPossible(1);
+		addPossible(-1);
 	}
 }
 
@@ -196,6 +204,7 @@ function search3D(searchPoint: RGBCoords) {
 function generateKDTree() {
 	function distanceEquation(option: RGBCoords, origin: RGBCoords) {
 		// option 0 = x 1 = y z = 2
+		console.log(option, origin);
 		return (
 			(option[0] - origin[0]) ** 2 + (option[1] - origin[1]) ** 2 + (option[2] - origin[2]) ** 2
 		);
