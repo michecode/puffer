@@ -1,22 +1,24 @@
 <script lang="ts">
-	import { slide, blur, scale } from 'svelte/transition';
+	import { scale } from 'svelte/transition';
 	import { sketchRgbSmoke } from '$lib/3D-Colorspace/rgb';
-	import { puff, download } from '../lib/store';
+	import { puff, download, canvasDimensions } from '../lib/store';
 	import { SIZE_MAP } from './globals';
 
 	// GENERATION OPTION STATES
 	let canvasOption = 'custom';
-	let canvasWidth: string, canvasHeight: string, rgbSize: string;
+	let canvasWidth: number, canvasHeight: number, rgbSize: number;
 	let restrictOverlap = true;
 	let allowRegen = true;
 	let mode = 'rgb';
 
+	$: $canvasDimensions = [canvasWidth ?? 1, canvasHeight ?? 1];
+
 	const generate = () => {
 		let width: number, height: number, rgb: number;
 		if (canvasOption === 'custom') {
-			width = Number(canvasWidth);
-			height = Number(canvasHeight);
-			rgb = Number(rgbSize);
+			width = canvasWidth;
+			height = canvasHeight;
+			rgb = rgbSize;
 		} else {
 			width = SIZE_MAP[canvasOption as CanvasSize].canvas;
 			height = width;
@@ -37,6 +39,7 @@
 		}
 
 		if (mode === 'rgb') {
+			console.log(width, height, rgb);
 			sketchRgbSmoke(width, height, rgb, restrictOverlap, allowRegen);
 		}
 	};
@@ -53,7 +56,7 @@
 </script>
 
 <div
-	class="flex flex-col justify-between bg-primrose min-h-[90vh] w-full lg:w-1/5 p-2 rounded-xl shadow-xl"
+	class="fixed right-8 flex flex-col justify-between bg-primrose min-h-[90vh] w-full lg:w-fit p-2 rounded-xl shadow-xl"
 >
 	<!-- OPTION GROUP -->
 	<div class="flex flex-col space-y-2">
