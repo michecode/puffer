@@ -5,7 +5,8 @@
 	import { SIZE_MAP } from './globals';
 
 	// GENERATION OPTION STATES
-	let paintingSizeOption = 'custom';
+	let sampleMethod = 'Grid';
+	let paintingSizeOption = 'md';
 	let paintingWidth: number, paintingHeight: number, rgbSize: number;
 	let restrictOverlap = true;
 	let allowRegen = true;
@@ -73,18 +74,45 @@
 	<div class="flex flex-col space-y-2">
 		<h1 class="font-black">Options</h1>
 		<div>
-			<label>
-				Canvas Size<br />
-				<select name="canvas size" bind:value={paintingSizeOption}>
-					<option value="nano">8x8</option>
-					<option value="xs">64x64</option>
-					<option value="sm">125x125</option>
-					<option value="md">512x512</option>
-					<option value="lg">1000x1000</option>
-					<option value="xl">4096x4096</option>
-					<option value="custom">custom</option>
-				</select>
-			</label>
+			<div class="mb-2">
+				<label>
+					Color Sample Method<br />
+					<label>
+						<input
+							type="radio"
+							name="sample-method"
+							value="Grid"
+							bind:group={sampleMethod}
+							disabled={true}
+						/>
+						Grid
+					</label>
+					<label>
+						<input
+							type="radio"
+							name="sample-method"
+							value="RM"
+							bind:group={sampleMethod}
+							disabled={true}
+						/>
+						RM
+					</label>
+				</label>
+			</div>
+			<div class="mb-2">
+				<label>
+					Canvas Size<br />
+					<select name="canvas size" bind:value={paintingSizeOption}>
+						<option value="nano">8x8</option>
+						<option value="xs">64x64</option>
+						<option value="sm">125x125</option>
+						<option value="md">512x512</option>
+						<option value="lg">1000x1000</option>
+						<option value="xl">4096x4096</option>
+						<option value="custom">custom</option>
+					</select>
+				</label>
+			</div>
 			{#if paintingSizeOption === 'custom'}
 				<div class="flex flex-col">
 					<div class="flex space-x-2">
