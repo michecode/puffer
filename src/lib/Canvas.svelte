@@ -13,7 +13,6 @@
 	import { puff, canvasDimensions } from '../lib/store';
 
 	let x: number, y: number, spaceEl: HTMLElement | null, puffContainerEl: HTMLElement | null;
-	console.log($canvasDimensions);
 	$: [x, y] = $canvasDimensions;
 	$: resizeCanvas(x, y);
 

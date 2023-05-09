@@ -141,7 +141,6 @@ function updateColorTrackers(coords: RGBCoords) {
 
 function coordinatesToColorId(coords: RGBCoords) {
 	const [x, y, z] = coords;
-	console.log(x, y, z);
 	return x + (y * Math.pow(RGB_SIZE, 2) + z * RGB_SIZE);
 }
 
