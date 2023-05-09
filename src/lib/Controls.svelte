@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { scale } from 'svelte/transition';
 	import { sketchRgbSmoke } from '$lib/3D-Colorspace/rgb';
-	import { puff, download, canvasDimensions } from '../lib/store';
+	import { puff, download, canvasDimensions } from './store';
 	import { SIZE_MAP } from './globals';
+	import Icon from './Icon.svelte';
 
 	// GENERATION OPTION STATES
 	let sampleMethod = 'Grid';
@@ -10,6 +11,10 @@
 	let paintingWidth: number, paintingHeight: number, rgbSize: number;
 	let restrictOverlap = true;
 	let allowRegen = true;
+	let randomColorSeed = true;
+	let randomPaintingSeed = true;
+	let colorSeedX: number, colorSeedY: number, colorSeedZ: number;
+	let paintingSeedX: number, paintingSeedY: number;
 	let mode = 'rgb';
 
 	$: $canvasDimensions = [paintingWidth ?? 1, paintingHeight ?? 1];
@@ -45,8 +50,45 @@
 			return;
 		}
 
+		const colorSeed: Coordinates2D | Coordinates3D | undefined = randomColorSeed
+			? undefined
+			: mode === 'rgb'
+			? [colorSeedX, colorSeedY, colorSeedZ]
+			: [colorSeedX, colorSeedY];
+		const paintingSeed: Coordinates2D | undefined = randomPaintingSeed
+			? undefined
+			: [paintingSeedX, paintingSeedY];
+
+		if (colorSeed) {
+			// if user puts 256, it will clean to 255 automagically!
+			colorSeed.forEach((coord, index) => {
+				coord === rgb ? (colorSeed[index] = rgb - 1) : null;
+			});
+
+			if (colorSeed[0] < 0 || colorSeed[0] > rgb) {
+				alert('Custom color seed X value is invalid');
+			}
+			if (colorSeed[1] < 0 || colorSeed[1] > rgb) {
+				alert('Custom color seed Y value is invalid');
+			}
+			if (colorSeed[1] < 0 || colorSeed[1] > rgb) {
+				alert('Custom color seed Z value is invalid');
+			}
+		}
+		if (paintingSeed) {
+			paintingSeed[0] === width ? (paintingSeed[0] = width - 1) : null;
+			paintingSeed[1] === height ? (paintingSeed[1] = height - 1) : null;
+
+			if (paintingSeed[0] < 0 || paintingSeed[0] > width) {
+				alert('Custom painting seed X value is invalid');
+			}
+			if (paintingSeed[1] < 0 || paintingSeed[1] > height) {
+				alert('Custom painting seed Y value is invalid');
+			}
+		}
+
 		if (mode === 'rgb') {
-			sketchRgbSmoke(width, height, rgb, restrictOverlap, allowRegen);
+			sketchRgbSmoke(width, height, rgb, colorSeed, paintingSeed, restrictOverlap, allowRegen);
 		}
 	};
 
@@ -72,7 +114,15 @@
 >
 	<!-- OPTION GROUP -->
 	<div class="flex flex-col space-y-2">
-		<h1 class="font-black">Options</h1>
+		<!-- Header -->
+		<div class="flex justify-between">
+			<h1 class="font-black">Options</h1>
+			<a href="/docs" target="_blank" rel="noreferrer">
+				<Icon type="question" width="24px" height="24px" />
+			</a>
+		</div>
+
+		<!-- Options -->
 		<div>
 			<div class="mb-2">
 				<label>
@@ -138,6 +188,7 @@
 			{/if}
 		</div>
 
+		<!-- Flags -->
 		<div class="flex flex-col">
 			<h6>Flags</h6>
 			<label>
@@ -148,9 +199,38 @@
 				<input type="checkbox" bind:checked={allowRegen} />
 				Allow KD-Tree Regen
 			</label>
+			<label>
+				<input type="checkbox" bind:checked={randomColorSeed} />
+				Random Color Seed
+			</label>
+			{#if !randomColorSeed}
+				<label class="text-sm">
+					Color coordinates
+					<div class="flex space-x-2">
+						<input type="number" bind:value={colorSeedX} placeholder="X" class="w-12" />
+						<input type="number" bind:value={colorSeedY} placeholder="Y" class="w-12" />
+						{#if mode === 'rgb'}
+							<input type="number" bind:value={colorSeedZ} placeholder="Z" class="w-12" />
+						{/if}
+					</div>
+				</label>
+			{/if}
+			<label>
+				<input type="checkbox" bind:checked={randomPaintingSeed} />
+				Random Position Seed
+			</label>
+			{#if !randomPaintingSeed}
+				<label class="text-sm">
+					Painting coordinates
+					<div class="flex space-x-2">
+						<input type="number" bind:value={paintingSeedX} placeholder="X" class="w-16" />
+						<input type="number" bind:value={paintingSeedY} placeholder="Y" class="w-16" />
+					</div>
+				</label>
+			{/if}
 		</div>
 	</div>
-	<!-- BUTTON GROUP -->
+	<!-- Action Buttons -->
 	<div class="flex flex-col space-y-2">
 		{#if $puff === undefined}
 			<button

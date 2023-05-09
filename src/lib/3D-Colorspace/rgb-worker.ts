@@ -1,16 +1,21 @@
 import { kdTree } from 'kd-tree-javascript';
 
 const generationParameters = self.name.split(':');
-// order of options is [ width, height, rgbSize, restrict-overlap, allow-regen ]
+// order of options is [ width, height, rgbSize, colorSeed, paintingSeed, restrict-overlap, allow-regen ]
 
 const CANVAS_WIDTH = Number(generationParameters[0]);
 const CANVAS_HEIGHT = Number(generationParameters[1]);
 const RGB_SIZE = Number(generationParameters[2]);
 const RGB_FULL_SIZE = Math.pow(RGB_SIZE, 3);
 const CANVAS_ID_LIMIT = CANVAS_WIDTH * CANVAS_HEIGHT;
+// Provided Seeds
+const COLOR_SEED_COORDS =
+	generationParameters[3] === 'undefined' ? undefined : generationParameters[3];
+const CANVAS_SEED_COORDS =
+	generationParameters[4] === 'undefined' ? undefined : generationParameters[4];
 // Flags
-const RESTRICT_OVERLAP = generationParameters[3] === 'true';
-const ALLOW_COLOR_TREE_REGENERATION = generationParameters[4] === 'true';
+const RESTRICT_OVERLAP = generationParameters[5] === 'true';
+const ALLOW_COLOR_TREE_REGENERATION = generationParameters[6] === 'true';
 
 // Data
 const canvasOptions: Set<number> = new Set();
@@ -22,9 +27,21 @@ let updateBuffer: PixelData[] = [];
 // ~~~~~~~~~~~~~~~~~~~~~~~
 // DATA SETUP
 // ~~~~~~~~~~~~~~~~~~~~~~~
-// get seeds. random number between 0 and RGB's color possibilities
-const canvasSeed = Math.floor(Math.random() * CANVAS_ID_LIMIT);
-const colorSeed = Math.floor(Math.random() * RGB_FULL_SIZE);
+// if painting seed is provided
+let canvasSeed, colorSeed;
+if (CANVAS_SEED_COORDS) {
+	const [x, y] = CANVAS_SEED_COORDS.split(',');
+	canvasSeed = coordinatesToCanvasId([Number(x), Number(y)]);
+} else {
+	canvasSeed = Math.floor(Math.random() * CANVAS_ID_LIMIT);
+}
+
+if (COLOR_SEED_COORDS) {
+	const [x, y, z] = COLOR_SEED_COORDS.split(',');
+	colorSeed = coordinatesToColorId([Number(x), Number(y), Number(z)]);
+} else {
+	colorSeed = Math.floor(Math.random() * RGB_FULL_SIZE);
+}
 
 // paint first pixel
 const [x, y] = canvasIdToCoordinates(canvasSeed);
@@ -124,7 +141,13 @@ function updateColorTrackers(coords: RGBCoords) {
 
 function coordinatesToColorId(coords: RGBCoords) {
 	const [x, y, z] = coords;
+	console.log(x, y, z);
 	return x + (y * Math.pow(RGB_SIZE, 2) + z * RGB_SIZE);
+}
+
+function coordinatesToCanvasId(coords: Coordinates2D) {
+	const [x, y] = coords;
+	return x + y * CANVAS_WIDTH;
 }
 
 function colorIdToCoordinates(id: number) {

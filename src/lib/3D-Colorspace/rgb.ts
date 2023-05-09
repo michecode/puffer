@@ -6,6 +6,8 @@ export const sketchRgbSmoke = (
 	width: number,
 	height: number,
 	rgbSize: number,
+	colorSeed: Coordinates2D | Coordinates3D | undefined,
+	paintingSeed: Coordinates2D | undefined,
 	restrictOverlap: boolean,
 	allowRegen: boolean
 ) => {
@@ -30,7 +32,7 @@ export const sketchRgbSmoke = (
 		p5.disableFriendlyErrors = true;
 		const worker = new Worker(new URL('rgb-worker.ts', import.meta.url), {
 			/* @vite-ignore */
-			name: `${CANVAS_WIDTH}:${CANVAS_HEIGHT}:${RGB_SIZE}:${restrictOverlap}:${allowRegen}`,
+			name: `${CANVAS_WIDTH}:${CANVAS_HEIGHT}:${RGB_SIZE}:${colorSeed}:${paintingSeed}:${restrictOverlap}:${allowRegen}`,
 			type: 'module'
 		});
 		let pixelCount = 0;
