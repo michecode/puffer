@@ -13,6 +13,7 @@
 	import { puff, canvasDimensions } from '../lib/store';
 
 	let x: number, y: number, spaceEl: HTMLElement | null, puffContainerEl: HTMLElement | null;
+	console.log($canvasDimensions);
 	$: [x, y] = $canvasDimensions;
 	$: resizeCanvas(x, y);
 
@@ -44,6 +45,10 @@
 	onMount(() => {
 		spaceEl = document.getElementById('space');
 		puffContainerEl = document.getElementById('puff-container');
+
+		// To prevent showing a null box before user input
+		const [x, y] = $canvasDimensions;
+		resizeCanvas(x, y);
 	});
 </script>
 
