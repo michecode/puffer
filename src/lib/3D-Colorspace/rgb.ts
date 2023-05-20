@@ -67,7 +67,7 @@ export const sketchRgbSmoke = (
 				p5.noLoop();
 				worker.terminate();
 				download.set(function () {
-					p5.save(painting, 'puff.png');
+					p5.save(painting, `${CANVAS_WIDTH}x${CANVAS_HEIGHT}xRGB(${RGB_SIZE})`);
 				});
 			}
 
